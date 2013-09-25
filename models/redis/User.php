@@ -16,6 +16,7 @@ class User extends \yii\redis\ActiveRecord
 				'id' => 'integer',
 				'name' => 'string',
 				'email' => 'string',
+				'visits' => 'integer',
 				'created' => 'integer',
 			)
 		));

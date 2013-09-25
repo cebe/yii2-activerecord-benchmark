@@ -10,6 +10,7 @@ class BenchmarkController extends \yii\console\Controller
 	protected $time = 0;
 
 	public $iterations = 1000;
+	private $i;
 	public $n = 1;
 	public $ns = array(
 		10,
@@ -33,14 +34,17 @@ class BenchmarkController extends \yii\console\Controller
 
 		$this->stdout("legend:\n\n", Console::BOLD);
 		echo <<<EOF
-insertUsers        = insert of a record with 4 attributes and single integer pk
-findUsersByPk      = find by pk (indexed search) and retrieve of a record with 4 attributes and single integer pk
-findNonUsersByPk   = find of a record with single integer pk with empty result
-findUsersWhere     = find by non pk attribute (full table scan) and retrieve of a record with 4 attributes and single integer pk
-findNonUsersWhere  = find by non pk attribute (full table scan) of a record with single integer pk with empty result
-updateUsers        = find by pk (indexed search) and update one non-pk attribute of a record with 4 attributes and single integer pk
-updateUsersPk      = find by pk (indexed search) and update the primary key of a record with 4 attributes and single integer pk
-deleteUsers        = find by pk (indexed search) and delete of a record with 4 attributes and single integer pk
+insertUsers            = insert of a record with 4 attributes and single integer pk
+findUsersByPk          = find by pk (indexed search) and retrieve of a record with 4 attributes and single integer pk
+findNonUsersByPk       = find of a record with single integer pk with empty result
+findUsersWhere         = find by non pk attribute (full table scan) and retrieve of a record with 4 attributes and single integer pk
+findNonUsersWhere      = find by non pk attribute (full table scan) of a record with single integer pk with empty result
+updateUsers            = find by pk (indexed search) and update one non-pk attribute of a record with 4 attributes and single integer pk
+updateUserCounters     = find by pk (indexed search) and update one counter attribute of a record with 4 attributes and single integer pk
+deleteUsers            = find by pk (indexed search) and delete of a record with 4 attributes and single integer pk
+updateAllUsers         = mass update of one non-pk attribute for all records with 4 attributes and single integer pk
+updateAllUsersCounters = mass update of one counter attribute for all records with 4 attributes and single integer pk
+deleteAllUsers         = mass delete of all records with 4 attributes and single integer pk
 
 pk = primary key
 
@@ -66,6 +70,7 @@ EOF;
 					'id' => 'pk',
 					'name' => 'string',
 					'email' => 'string',
+					'visits' => 'integer',
 					'created' => 'integer',
 				))->execute();
 				break;
@@ -77,6 +82,7 @@ EOF;
 					'id' => 'pk',
 					'name' => 'string',
 					'email' => 'string',
+					'visits' => 'integer',
 					'created' => 'integer',
 				))->execute();
 				break;
@@ -89,6 +95,7 @@ EOF;
 					'id' => 'pk',
 					'name' => 'string',
 					'email' => 'string',
+					'visits' => 'integer',
 					'created' => 'integer',
 				))->execute();
 				break;
@@ -111,7 +118,7 @@ EOF;
 			foreach($times as $name => $t) {
 				$this->printLLen($name, $len);
 				foreach($this->ns as $n) {
-					$this->printRLen(number_format($t[$n] / $n, 6), 10);
+					$this->printRLen(number_format($t[$n], 6), 10);
 				}
 				echo "\n";
 			}
@@ -159,7 +166,12 @@ EOF;
 			$this->callTimed('findUsersWhere', array("app\\models\\$backend\\User"));
 			$this->callTimed('findNonUsersWhere', array("app\\models\\$backend\\User"));
 			$this->callTimed('updateUsers', array("app\\models\\$backend\\User"));
+			$this->callTimed('updateUserCounters', array("app\\models\\$backend\\User"));
 			$this->callTimed('deleteUsers', array("app\\models\\$backend\\User"));
+			$this->callTimed('insertUsers', array("app\\models\\$backend\\User"));
+			$this->callTimed('updateAllUsers', array("app\\models\\$backend\\User"));
+			$this->callTimed('updateAllUsersCounters', array("app\\models\\$backend\\User"));
+			$this->callTimed('deleteAllUsers', array("app\\models\\$backend\\User"));
 			echo "\n\n";
 		}
 	}
@@ -167,10 +179,11 @@ EOF;
 	protected function callTimed($method, $params)
 	{
 		$this->time = microtime(true);
+		$this->i = $this->iterations;
 		call_user_func_array(array($this, $method), $params);
 		$time = microtime(true) - $this->time;
-		$this->stats[$this->current][$method][$this->n] = $time;
-		echo "finished. time: " . number_format($time, 4) . " sec. avg: " . number_format($time / $this->n, 6) . " sec.\n";
+		$this->stats[$this->current][$method][$this->n] = $time / $this->i;
+		echo "finished. time: " . number_format($time, 4) . " sec. avg: " . number_format($time / $this->i, 6) . " sec.\n";
 	}
 
 	/**
@@ -187,7 +200,7 @@ EOF;
 
 	protected function insertUsers($modelClass)
 	{
-		$n = $this->n;
+		$n = $this->i = $this->n;
 		echo "inserting $n users...";
 		for($i = 0; $i < $n; $i++) {
 			/** @var ActiveRecord $record */
@@ -195,13 +208,14 @@ EOF;
 			$record->name = 'user' . $i;
 			$record->email = 'user' . $i . '@test.cebe.cc';
 			$record->created = time();
+			$record->visits = 0;
 			$record->save();
 		}
 	}
 
 	protected function findUsersByPk($modelClass)
 	{
-		$n = $this->iterations > $this->n ? $this->n : $this->iterations;
+		$n = $this->i = $this->iterations > $this->n ? $this->n : $this->iterations;
 		echo "finding $n users out of $this->n by pk...";
 		for($i = 0; $i < $n; $i++) {
 			/** @var ActiveRecord $modelClass */
@@ -211,7 +225,7 @@ EOF;
 
 	protected function findNonUsersByPk($modelClass)
 	{
-		$n = $this->iterations > $this->n ? $this->n : $this->iterations;
+		$n = $this->i = $this->iterations > $this->n ? $this->n : $this->iterations;
 		echo "finding $n not existing users out of $this->n by pk...";
 		for($i = 0; $i < $n; $i++) {
 			/** @var ActiveRecord $modelClass */
@@ -221,7 +235,7 @@ EOF;
 
 	protected function findUsersWhere($modelClass)
 	{
-		$n = $this->iterations > $this->n ? $this->n : $this->iterations;
+		$n = $this->i = $this->iterations > $this->n ? $this->n : $this->iterations;
 		echo "finding $n users out of $this->n with where()...";
 		for($i = 0; $i < $n; $i++) {
 			/** @var ActiveRecord $modelClass */
@@ -231,7 +245,7 @@ EOF;
 
 	protected function findNonUsersWhere($modelClass)
 	{
-		$n = $this->iterations > $this->n ? $this->n : $this->iterations;
+		$n = $this->i = $this->iterations > $this->n ? $this->n : $this->iterations;
 		echo "finding $n not existing users out of $this->n with where()...";
 		for($i = 0; $i < $n; $i++) {
 			/** @var ActiveRecord $modelClass */
@@ -241,7 +255,7 @@ EOF;
 
 	protected function updateUsers($modelClass)
 	{
-		$n = $this->iterations > $this->n ? $this->n : $this->iterations;
+		$n = $this->i = $this->iterations > $this->n ? $this->n : $this->iterations;
 		echo "finding and updating $n users out of $this->n...";
 		for($i = 0; $i < $n; $i++) {
 			/** @var ActiveRecord $modelClass */
@@ -251,9 +265,20 @@ EOF;
 		}
 	}
 
+	protected function updateUserCounters($modelClass)
+	{
+		$n = $this->i = $this->iterations > $this->n ? $this->n : $this->iterations;
+		echo "finding and updating $n users counter out of $this->n...";
+		for($i = 0; $i < $n; $i++) {
+			/** @var ActiveRecord $modelClass */
+			$user = $modelClass::find($this->pk($i));
+			$user->updateCounters(array('visits' => 1));
+		}
+	}
+
 	protected function deleteUsers($modelClass)
 	{
-		$n = $this->n;
+		$n = $this->i = $this->n;
 		echo "finding and deleting $n users...";
 		for($i = 0; $i < $n; $i++) {
 			/** @var ActiveRecord $modelClass */
@@ -262,5 +287,31 @@ EOF;
 		}
 	}
 
-	// TODO test updateAll deleteAll updateAllCounters
+	protected function updateAllUsers($modelClass)
+	{
+		$n = $this->iterations;
+		echo "updating all users...";
+		for($i = 0; $i < $n; $i++) {
+			/** @var ActiveRecord $modelClass */
+			$modelClass::updateAll(array('visits' => rand(1,100)));
+		}
+	}
+
+	protected function updateAllUsersCounters($modelClass)
+	{
+		$n = $this->iterations;
+		echo "updating all users counters...";
+		for($i = 0; $i < $n; $i++) {
+			/** @var ActiveRecord $modelClass */
+			$modelClass::updateAllCounters(array('visits' => 1));
+		}
+	}
+
+	protected function deleteAllUsers($modelClass)
+	{
+		$this->i = 1;
+		echo "deleting all users...";
+		/** @var ActiveRecord $modelClass */
+		$modelClass::deleteAll();
+	}
 }
