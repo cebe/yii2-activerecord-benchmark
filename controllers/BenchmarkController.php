@@ -145,6 +145,7 @@ EOF;
 			$this->callTimed('findUsersByPk', array("app\\models\\$backend\\User"));
 			$this->callTimed('findNonUsersByPk', array("app\\models\\$backend\\User"));
 			$this->callTimed('findUsersWhere', array("app\\models\\$backend\\User"));
+			$this->callTimed('findNonUsersWhere', array("app\\models\\$backend\\User"));
 			$this->callTimed('updateUsers', array("app\\models\\$backend\\User"));
 			$this->callTimed('updateUsersPk', array("app\\models\\$backend\\User"));
 			$this->callTimed('deleteUsers', array("app\\models\\$backend\\User"));
@@ -188,7 +189,7 @@ EOF;
 	protected function findNonUsersByPk($modelClass)
 	{
 		$n = $this->n;
-		echo "finding $n nonexisting users by pk...";
+		echo "finding $n not existing users by pk...";
 		for($i = 0; $i < $n; $i++) {
 			/** @var ActiveRecord $modelClass */
 			$user = $modelClass::find($n + $i);
@@ -202,6 +203,16 @@ EOF;
 		for($i = 0; $i < $n; $i++) {
 			/** @var ActiveRecord $modelClass */
 			$user = $modelClass::find(array('name' => 'user' . $i));
+		}
+	}
+
+	protected function findNonUsersWhere($modelClass)
+	{
+		$n = $this->n;
+		echo "finding $n not existing users with where()...";
+		for($i = 0; $i < $n; $i++) {
+			/** @var ActiveRecord $modelClass */
+			$user = $modelClass::find(array('name' => 'username' . $i));
 		}
 	}
 
