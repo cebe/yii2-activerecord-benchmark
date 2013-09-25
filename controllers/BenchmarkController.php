@@ -9,14 +9,14 @@ class BenchmarkController extends \yii\console\Controller
 {
 	protected $time = 0;
 
-	public $steps = 5000;
+	public $iterations = 1000;
 	public $n = 1;
 	public $ns = array(
 		10,
 		100,
 		1000,
 		10000,
-//		100000,
+		100000,
 	);
 
 	protected $stats = array();
@@ -159,7 +159,6 @@ EOF;
 			$this->callTimed('findUsersWhere', array("app\\models\\$backend\\User"));
 			$this->callTimed('findNonUsersWhere', array("app\\models\\$backend\\User"));
 			$this->callTimed('updateUsers', array("app\\models\\$backend\\User"));
-			$this->callTimed('updateUsersPk', array("app\\models\\$backend\\User"));
 			$this->callTimed('deleteUsers', array("app\\models\\$backend\\User"));
 			echo "\n\n";
 		}
@@ -172,6 +171,18 @@ EOF;
 		$time = microtime(true) - $this->time;
 		$this->stats[$this->current][$method][$this->n] = $time;
 		echo "finished. time: " . number_format($time, 4) . " sec. avg: " . number_format($time / $this->n, 6) . " sec.\n";
+	}
+
+	/**
+	 * calculate pk in range of existing values
+	 * @param $i
+	 */
+	protected function pk($i)
+	{
+		$n = $this->n;
+		$it = $this->iterations;
+
+		return $i * (int) ($n / $it + ($n < $it ? 1 : 0)) + 1;
 	}
 
 	protected function insertUsers($modelClass)
@@ -190,64 +201,52 @@ EOF;
 
 	protected function findUsersByPk($modelClass)
 	{
-		$n = $this->n;
-		echo "finding $n users by pk...";
+		$n = $this->iterations > $this->n ? $this->n : $this->iterations;
+		echo "finding $n users out of $this->n by pk...";
 		for($i = 0; $i < $n; $i++) {
 			/** @var ActiveRecord $modelClass */
-			$user = $modelClass::find($i + 1);
+			$user = $modelClass::find($this->pk($i));
 		}
 	}
 
 	protected function findNonUsersByPk($modelClass)
 	{
-		$n = $this->n;
-		echo "finding $n not existing users by pk...";
+		$n = $this->iterations > $this->n ? $this->n : $this->iterations;
+		echo "finding $n not existing users out of $this->n by pk...";
 		for($i = 0; $i < $n; $i++) {
 			/** @var ActiveRecord $modelClass */
-			$user = $modelClass::find($n + $i);
+			$user = $modelClass::find($this->n + $this->pk($i));
 		}
 	}
 
 	protected function findUsersWhere($modelClass)
 	{
-		$n = $this->n;
-		echo "finding $n users with where()...";
+		$n = $this->iterations > $this->n ? $this->n : $this->iterations;
+		echo "finding $n users out of $this->n with where()...";
 		for($i = 0; $i < $n; $i++) {
 			/** @var ActiveRecord $modelClass */
-			$user = $modelClass::find(array('name' => 'user' . $i));
+			$user = $modelClass::find(array('name' => 'user' . $this->pk($i)));
 		}
 	}
 
 	protected function findNonUsersWhere($modelClass)
 	{
-		$n = $this->n;
-		echo "finding $n not existing users with where()...";
+		$n = $this->iterations > $this->n ? $this->n : $this->iterations;
+		echo "finding $n not existing users out of $this->n with where()...";
 		for($i = 0; $i < $n; $i++) {
 			/** @var ActiveRecord $modelClass */
-			$user = $modelClass::find(array('name' => 'username' . $i));
+			$user = $modelClass::find(array('name' => 'username' . $this->pk($i)));
 		}
 	}
 
 	protected function updateUsers($modelClass)
 	{
-		$n = $this->n;
-		echo "finding and updating $n users...";
+		$n = $this->iterations > $this->n ? $this->n : $this->iterations;
+		echo "finding and updating $n users out of $this->n...";
 		for($i = 0; $i < $n; $i++) {
 			/** @var ActiveRecord $modelClass */
-			$user = $modelClass::find($i + 1);
+			$user = $modelClass::find($this->pk($i));
 			$user->email = $user->name . '@example.com';
-			$user->save();
-		}
-	}
-
-	protected function updateUsersPk($modelClass)
-	{
-		$n = $this->n;
-		echo "finding and updating $n users pk...";
-		for($i = 0; $i < $n; $i++) {
-			/** @var ActiveRecord $modelClass */
-			$user = $modelClass::find($i + 1);
-			$user->id = $i;
 			$user->save();
 		}
 	}
@@ -258,9 +257,10 @@ EOF;
 		echo "finding and deleting $n users...";
 		for($i = 0; $i < $n; $i++) {
 			/** @var ActiveRecord $modelClass */
-			$user = $modelClass::find($i);
+			$user = $modelClass::find($i + 1);
 			$user->delete();
 		}
 	}
 
+	// TODO test updateAll deleteAll updateAllCounters
 }
