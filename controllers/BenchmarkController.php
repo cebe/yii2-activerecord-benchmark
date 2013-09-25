@@ -30,15 +30,19 @@ class BenchmarkController extends \yii\console\Controller
 
 		$this->showMatrix();
 
+		$this->stdout("legend:\n\n", Console::BOLD);
 		echo <<<EOF
-insertUsers          insert of a record with 4 attributes and single integer pk
-findUsersByPk        find by pk (indexed search) and retrieve of a record with 4 attributes and single integer pk
-findNonUsersByPk     find of a record with single integer pk with empty result
-findUsersWhere       find by non pk attribute (fulltable scan) and retrieve of a record with 4 attributes and single integer pk
-findNonUsersWhere    find by non pk attribute (fulltable scan) of a record with single integer pk with empty result
-updateUsers          find by pk (indexed search) and update one non-pk attribute of a record with 4 attributes and single integer pk
-updateUsersPk        find by pk (indexed search) and update the primary key of a record with 4 attributes and single integer pk
-deleteUsers          find by pk (indexed search) and delete of a record with 4 attributes and single integer pk
+insertUsers        = insert of a record with 4 attributes and single integer pk
+findUsersByPk      = find by pk (indexed search) and retrieve of a record with 4 attributes and single integer pk
+findNonUsersByPk   = find of a record with single integer pk with empty result
+findUsersWhere     = find by non pk attribute (full table scan) and retrieve of a record with 4 attributes and single integer pk
+findNonUsersWhere  = find by non pk attribute (full table scan) of a record with single integer pk with empty result
+updateUsers        = find by pk (indexed search) and update one non-pk attribute of a record with 4 attributes and single integer pk
+updateUsersPk      = find by pk (indexed search) and update the primary key of a record with 4 attributes and single integer pk
+deleteUsers        = find by pk (indexed search) and delete of a record with 4 attributes and single integer pk
+
+pk = primary key
+
 EOF;
 
 	}
