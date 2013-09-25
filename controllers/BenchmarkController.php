@@ -29,6 +29,18 @@ class BenchmarkController extends \yii\console\Controller
 		$this->runTests('mysql');
 
 		$this->showMatrix();
+
+		echo <<<EOF
+insertUsers          insert of a record with 4 attributes and single integer pk
+findUsersByPk        find by pk (indexed search) and retrieve of a record with 4 attributes and single integer pk
+findNonUsersByPk     find of a record with single integer pk with empty result
+findUsersWhere       find by non pk attribute (fulltable scan) and retrieve of a record with 4 attributes and single integer pk
+findNonUsersWhere    find by non pk attribute (fulltable scan) of a record with single integer pk with empty result
+updateUsers          find by pk (indexed search) and update one non-pk attribute of a record with 4 attributes and single integer pk
+updateUsersPk        find by pk (indexed search) and update the primary key of a record with 4 attributes and single integer pk
+deleteUsers          find by pk (indexed search) and delete of a record with 4 attributes and single integer pk
+EOF;
+
 	}
 
 	protected function prepareDb($backend)
@@ -72,7 +84,7 @@ class BenchmarkController extends \yii\console\Controller
 	{
 		foreach($this->stats as $backend => $times) {
 			$this->stdout("$backend:\n\n", Console::BOLD);
-			$len = $this->textLength(array_keys($times) + array('number of records:'));
+			$len = $this->textLength(array_merge(array_keys($times), array('number of records:')));
 
 			$this->printLLen('number of records:', $len);
 			foreach($this->ns as $n) {
@@ -87,6 +99,7 @@ class BenchmarkController extends \yii\console\Controller
 				}
 				echo "\n";
 			}
+			echo "\n";
 		}
 	}
 
@@ -114,7 +127,7 @@ class BenchmarkController extends \yii\console\Controller
 
 	protected function runTests($backend)
 	{
-		$this->stdout("\n\nrunning tests for $backend...\n\n", Console::BOLD);
+		$this->stdout("\nrunning tests for $backend...\n\n", Console::BOLD);
 		$this->current = $backend;
 		$this->stats[$backend] = array();
 
