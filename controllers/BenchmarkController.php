@@ -27,6 +27,7 @@ class BenchmarkController extends \yii\console\Controller
 		$this->runTests('redis');
 		$this->runTests('sqlite');
 		$this->runTests('mysql');
+		$this->runTests('cubrid');
 
 		$this->showMatrix();
 
@@ -56,6 +57,17 @@ EOF;
 				$redis = \Yii::$app->redis;
 				$redis->executeCommand('FLUSHALL');
 
+				break;
+			case 'cubrid':
+				/** @var \yii\db\Connection $db */
+				$db = \Yii::$app->cubrid;
+				$db->createCommand("DROP TABLE IF EXISTS tbl_user;")->execute();
+				$db->createCommand()->createTable('tbl_user', array(
+					'id' => 'pk',
+					'name' => 'string',
+					'email' => 'string',
+					'created' => 'integer',
+				))->execute();
 				break;
 			case 'mysql':
 				/** @var \yii\db\Connection $db */

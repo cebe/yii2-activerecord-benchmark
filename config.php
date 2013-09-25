@@ -11,6 +11,13 @@ return array(
 			'class' => \yii\db\Connection::className(),
 			'dsn' => 'sqlite::memory:',
 		),
+		'cubrid' => array(
+			'class' => \yii\db\Connection::className(),
+			'dsn' => 'cubrid:dbname=demodb;host=localhost;port=33000',
+			'username' => 'dba',
+			'password' => '',
+
+		),
 		'mysql' => array(
 			'class' => \yii\db\Connection::className(),
 			'dsn' => 'mysql:host=localhost;dbname=yii',

@@ -1,6 +1,6 @@
 <?php
 
-namespace app\models\mysql;
+namespace app\models\cubrid;
 
 use Yii;
 
@@ -8,6 +8,6 @@ class User extends \yii\db\ActiveRecord
 {
 	public static function getDb()
 	{
-		return Yii::$app->mysql;
+		return Yii::$app->cubrid;
 	}
 }
