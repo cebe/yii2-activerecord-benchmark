@@ -1,5 +1,6 @@
 {
     "require": {
-        "yiisoft/yii2": "dev-redis"
+        "yiisoft/yii2": "~2.0.10",
+        "yiisoft/yii2-redis": "~2.0.0"
     }
 }

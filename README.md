@@ -26,8 +26,3 @@ Run benchmark with
 
 Wait for the results :-)
 
-Current results on Lenovo T530 (Intel Core i7-3630QM CPU @ 2.40GHz, 8GB RAM, SSD disk):
-
-```
-currently running :)
-```

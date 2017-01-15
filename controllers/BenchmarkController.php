@@ -16,8 +16,8 @@ class BenchmarkController extends \yii\console\Controller
 		10,
 		100,
 		1000,
-		10000,
-		100000,
+//		10000,
+//		100000,
 	);
 
 	protected $stats = array();
@@ -28,7 +28,7 @@ class BenchmarkController extends \yii\console\Controller
 		$this->runTests('redis');
 		$this->runTests('sqlite');
 		$this->runTests('mysql');
-		$this->runTests('cubrid');
+//		$this->runTests('cubrid');
 
 		$this->showMatrix();
 
@@ -219,7 +219,7 @@ EOF;
 		echo "finding $n users out of $this->n by pk...";
 		for($i = 0; $i < $n; $i++) {
 			/** @var ActiveRecord $modelClass */
-			$user = $modelClass::find($this->pk($i));
+			$user = $modelClass::findOne($this->pk($i));
 		}
 	}
 
@@ -229,7 +229,7 @@ EOF;
 		echo "finding $n not existing users out of $this->n by pk...";
 		for($i = 0; $i < $n; $i++) {
 			/** @var ActiveRecord $modelClass */
-			$user = $modelClass::find($this->n + $this->pk($i));
+			$user = $modelClass::findOne($this->n + $this->pk($i));
 		}
 	}
 
@@ -239,7 +239,7 @@ EOF;
 		echo "finding $n users out of $this->n with where()...";
 		for($i = 0; $i < $n; $i++) {
 			/** @var ActiveRecord $modelClass */
-			$user = $modelClass::find(array('name' => 'user' . $this->pk($i)));
+			$user = $modelClass::findOne(array('name' => 'user' . $this->pk($i)));
 		}
 	}
 
@@ -249,7 +249,7 @@ EOF;
 		echo "finding $n not existing users out of $this->n with where()...";
 		for($i = 0; $i < $n; $i++) {
 			/** @var ActiveRecord $modelClass */
-			$user = $modelClass::find(array('name' => 'username' . $this->pk($i)));
+			$user = $modelClass::findOne(array('name' => 'username' . $this->pk($i)));
 		}
 	}
 
@@ -259,7 +259,7 @@ EOF;
 		echo "finding and updating $n users out of $this->n...";
 		for($i = 0; $i < $n; $i++) {
 			/** @var ActiveRecord $modelClass */
-			$user = $modelClass::find($this->pk($i));
+			$user = $modelClass::findOne($this->pk($i));
 			$user->email = $user->name . '@example.com';
 			$user->save();
 		}
@@ -271,7 +271,7 @@ EOF;
 		echo "finding and updating $n users counter out of $this->n...";
 		for($i = 0; $i < $n; $i++) {
 			/** @var ActiveRecord $modelClass */
-			$user = $modelClass::find($this->pk($i));
+			$user = $modelClass::findOne($this->pk($i));
 			$user->updateCounters(array('visits' => 1));
 		}
 	}
@@ -282,7 +282,7 @@ EOF;
 		echo "finding and deleting $n users...";
 		for($i = 0; $i < $n; $i++) {
 			/** @var ActiveRecord $modelClass */
-			$user = $modelClass::find($i + 1);
+			$user = $modelClass::findOne($i + 1);
 			$user->delete();
 		}
 	}

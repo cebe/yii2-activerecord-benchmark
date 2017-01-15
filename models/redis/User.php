@@ -3,22 +3,21 @@
 namespace app\models\redis;
 
 
-use yii\redis\RecordSchema;
-
 class User extends \yii\redis\ActiveRecord
 {
-	public static function getRecordSchema()
+	public function attributes()
 	{
-		return new RecordSchema(array(
-			'name' => 'user',
-			'primaryKey' => array('id'),
-			'columns' => array(
-				'id' => 'integer',
-				'name' => 'string',
-				'email' => 'string',
-				'visits' => 'integer',
-				'created' => 'integer',
-			)
-		));
+		return [
+			'id',
+			'name',
+			'email',
+			'visits',
+			'created',
+		];
+	}
+
+	public static function primaryKey()
+	{
+		return ['id'];
 	}
 }
